@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Inicio de sesión</title>        
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+              crossorigin="anonymous">
+
+    </head>
+    <style>
+        div {
+            margin-top: 20px;
+        }
+
+        table {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .header {
+            text-align: center;
+            font-weight: bold;
+        }
+
+        td:hover {
+            background-color: #79AF79;
+            color: white;
+        }
+
+        #logout {
+            visibility: hidden;
+        }
+
+        #check {
+            visibility: hidden;
+        }
+        #secret {
+            visibility: hidden;
+        }
+
+
+    </style>
+    <body>
+        <div class="container">
+            <div class="header" id="titulo">
+                <h1>Iniciar sesión</h1>
+            </div>
+
+            <form role="form" >
+
+                <div class="form-group" id="formulario">
+                    <label for="user">Usuario</label>
+                    <input type="text" class="form-control" id="user" placeholder="Introduce el nombre de usuario" name="user" >
+                    <div id="mensajeA" class="">                        
+                    </div>
+
+                    <div class="form-group">
+                        <label for="passw">Clave</label>
+                        <input type="password" class="form-control" id="passw" placeholder="Introduce la contreseña" name="pass" >
+                    </div>
+                    <div id="mensajeB" class="">
+                    </div>
+
+                    <button type="button" name="enviar" value="Enviar" id="crear" class="btn btn-success" disabled="true">Enviar</button>
+                    <button id="reset" type="reset" class="btn btn-danger">Limpiar</button>
+
+                </div>
+            </form>                
+            <button type="button" name="enviar" value="Logout" id="logout" class="btn btn-success">Logout</button>
+            <button type="button" name="enviar" value="Check" id="check" class="btn btn-success" >Check</button>  
+            <button type="button" name="enviar" value="Secret" id="secret" class="btn btn-success" >Secret</button>   
+            <div id="alerta"></div>           
+
+            <script>
+                $(document).ready(function () {
+                    function nombre(str) {
+                        return /^[a-zA-Z]*$/.test(str);
+                    }
+                                                           
+                    var user, passw;
+                    $("#user").keyup(function () {
+                        user = $("#user").val();
+                        if ((nombre($("#user").val()))) {
+                            if (!($("#user").val() == "")) {
+                                $("#mensajeA").attr("class", "alert alert-success");
+                                $("#user").css("border-color", "green");
+                                $("#mensajeA").empty().append("Correcto");
+                                if (!passw == "") {
+                                    $("#crear").attr("disabled", false);
+                                }
+
+                            } else {
+                                $("#mensajeA").attr("class", "alert alert-danger");
+                                $("#mensajeA").empty().append("Debes escribir un nombre de usuario");
+                                $("#user").css("border-color", "red");
+                                $("#crear").attr("disabled", true);
+                            }
+
+                        } else {
+                            $("#mensajeA").attr("class", "alert alert-danger");
+                            $("#mensajeA").empty().append("No puedes introducir números. Ni dejar espacios en blanco");
+                            $("#user").css("border-color", "red");
+                            $("#crear").attr("disabled", true);
+                        }
+                    });
+                    $("#passw").keyup(function () {
+                        passw = $("#passw").val();
+                        if (!passw == "") {
+                            $("#mensajeB").attr("class", "alert alert-success");
+                            $("#passw").css("border-color", "green");
+                            $("#mensajeB").empty().append("Correcto");
+                            if ((nombre($("#user").val())) && (!($("#user").val() == ""))) {
+                                $("#crear").attr("disabled", false);
+                            }
+
+                        } else {
+                            $("#mensajeB").attr("class", "alert alert-danger");
+                            $("#mensajeB").empty().append("La contraseña no debe estar vacía.");
+                            $("#passw").css("border-color", "red");
+                            $("#crear").attr("disabled", true);
+                        }
+                    });
+
+
+                    $("#crear").click(function () {
+                        var op = "login";
+                        var url = "/trolleyes/json?op=" + op + "&user=" + user + "&passw=" + passw;
+                        $.ajax({
+                            url: url,
+                            cache: false,
+                            method: "GET",
+                            dataType: "json",
+                            success: function (data) {
+                                $("#formulario").hide();
+                                $("#logout").css("visibility", "visible");
+                                $("#check").css("visibility", "visible");
+                                $("#secret").css("visibility", "visible");
+                                $("#alerta").attr("class", "alert alert-success");
+                                $("#alerta").empty().append("<h4 style='text-align: center'>Correcto</h4><h5 class=\"alert alert-success\">" + data.status + ": " + data.msg + "</h5>");
+                            },
+                            error: function (error) {
+                                $("#alerta").attr("class", "alert alert-danger");
+                                $("#alerta").empty().append("<h4 style='text-align: center'>ERROR:</h4><h5 class=\"alert alert-danger\">" + error.status + ": " + error.responseJSON.msg + "</h5>");
+                            }
+                        });
+                    });
+
+
+                    $("#logout").click(function () {
+                        var op = "logout";
+                        var url = "/trolleyes/json?op=" + op;
+                        $.ajax({
+                            url: url,
+                            cache: false,
+                            method: "GET",
+                            dataType: "json",
+                            success: function (data) {
+                                $("#formulario").show();
+                                $("#logout").css("visibility", "hidden");
+                                $("#check").css("visibility", "hidden");
+                                $("#secret").css("visibility", "hidden");
+                                $("#user").val("");
+                                $("#passw").val("");                                
+                                $("#user").css("border-color", "");
+                                $("#passw").css("border-color", "");
+                                $("#alerta").attr("class", "alert alert-success");
+                                $("#mensajeA").attr("class", "");
+                                $("#mensajeB").attr("class", "");
+                                $("#mensajeA").empty();
+                                $("#mensajeB").empty();
+                                $("#alerta").empty().append("<h4 style='text-align: center'>Correcto</h4><h5 class=\"alert alert-success\">" + data.status + ": " + data.msg + "</h5>");
+                            },
+                            error: function (error) {
+                                $("#alerta").attr("class", "alert alert-danger");
+                                $("#alerta").empty().append("<h4 style='text-align: center'>ERROR:</h4><h5 class=\"alert alert-danger\">" + error.status + ": " + error.responseJSON.msg + "</h5>");
+                            }
+                        });
+                    });
+
+
+
+                    $("#check").click(function () {
+                        var op = "check";
+                        var url = "/trolleyes/json?op=" + op;
+                        $.ajax({
+                            url: url,
+                            cache: false,
+                            method: "GET",
+                            dataType: "json",
+                            success: function (data) {                                
+                                $("#alerta").attr("class", "alert alert-success");
+                                $("#alerta").empty().append("<h4 style='text-align: center'>Correcto</h4><h5 class=\"alert alert-success\">" + data.status + ": " + data.msg + "</h5>");
+                            },
+                            error: function (error) {
+                                $("#alerta").attr("class", "alert alert-danger");
+                                $("#alerta").empty().append("<h4 style='text-align: center'>ERROR:</h4><h5 class=\"alert alert-danger\">" + error.status + ": " + error.responseJSON.msg + "</h5>");
+                            }
+                        });
+                    });
+                    
+                    
+                    $("#secret").click(function () {
+                        var op = "secret";
+                        var url = "/trolleyes/json?op=" + op;
+                        $.ajax({
+                            url: url,
+                            cache: false,
+                            method: "GET",
+                            dataType: "json",
+                            success: function (data) {                                
+                                $("#alerta").attr("class", "alert alert-success");
+                                $("#alerta").empty().append("<h4 style='text-align: center'>Solo tú puedes verlo</h4><h5 class=\"alert alert-success\">" + data.status + ": " + data.msg + "</h5>");
+                            },
+                            error: function (error) {
+                                $("#alerta").attr("class", "alert alert-danger");
+                                $("#alerta").empty().append("<h4 style='text-align: center'>ERROR:</h4><h5 class=\"alert alert-danger\">" + error.status + ": " + error.responseJSON.msg + "</h5>");
+                            }
+                        });
+                    });
+
+
+
+
+
+                    $("#reset").click(function () {
+                        $("#user").val("");
+                        $("#passw").val("");
+                        $("#mensajeA").attr("class", "");
+                        $("#mensajeB").attr("class", "");
+                        $("#mensajeA").empty();
+                        $("#mensajeB").empty();
+                        $("#alerta").attr("class", "");
+                        $("#alerta").empty();
+                        $("#user").css("border-color", "");
+                        $("#passw").css("border-color", "");
+                        $("#crear").attr("disabled", true);
+                    });
+                });
+            </script>
+
+    </body>
+
+</html>
+
+
+
