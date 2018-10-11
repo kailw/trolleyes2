@@ -42,8 +42,7 @@ public class json extends HttpServlet {
         String strOp = request.getParameter("op");
         String strJson = "";
         if (strOp != null) {
-            if (strOp.equalsIgnoreCase("") || !strOp.equalsIgnoreCase("login") || !strOp.equalsIgnoreCase("logout") || !strOp.equalsIgnoreCase("secret")
-                    || !strOp.equalsIgnoreCase("bonecp")|| !strOp.equalsIgnoreCase("hikari") || !strOp.equalsIgnoreCase("c3p0")) {
+            if (strOp.equalsIgnoreCase("")) {
                 response.setStatus(500);
                 strJson = strJson(500, "No debe estar vacía.");
             } else  {
