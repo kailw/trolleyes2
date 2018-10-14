@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package net.daw.conexiones;
+package net.daw.connection.publicInterface;
 
 import java.sql.Connection;
 
@@ -13,7 +13,5 @@ import java.sql.Connection;
  */
 public interface ConnectionInterface {
     public Connection newConnection() throws Exception;
-    public void disposeConnection() throws Exception;
-    
-    
+    public void disposeConnection() throws Exception;       
 }

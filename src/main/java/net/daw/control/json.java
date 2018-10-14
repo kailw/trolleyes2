@@ -8,16 +8,20 @@ package net.daw.control;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.sql.Connection;
-import net.daw.conexiones.BoneCp;
-import net.daw.conexiones.C3p0;
-import net.daw.conexiones.ConnectionInterface;
-import net.daw.conexiones.Hikari;
+import net.daw.connection.specificImplementation.BoneCpConnectionSpecificImplementation;
+import net.daw.connection.specificImplementation.C3p0ConnectionSpecificImplementation;
+import net.daw.connection.publicInterface.ConnectionInterface;
+import net.daw.connection.specificImplementation.HikariConnectionSpecificImplementation;
+import net.daw.constant.ConnectionConstants;
+import net.daw.factory.ConnectionFactory;
+import net.daw.helper.EncodingHelper;
 
 /**
  *
@@ -45,91 +49,108 @@ public class json extends HttpServlet {
             if (strOp.equalsIgnoreCase("")) {
                 response.setStatus(500);
                 strJson = strJson(500, "No debe estar vacía.");
-            } else  {
-                try {
-                    Class.forName("com.mysql.jdbc.Driver");
-                } catch (Exception ex) {
-                    strJson = strJson(500, "Driver not found.");
-                }
-
-                Connection connection;
-                ConnectionInterface connectionInterface = null;
-
-                if (strOp.equalsIgnoreCase("bonecp")) {
-                    try {
-                        connectionInterface = new BoneCp();
-                        connection = connectionInterface.newConnection();
-                        strJson = strJson(200, "Conexion Realizada a BonceCP.");
-                    } catch (Exception e) {
-                        strJson = strJson(500, "Conexion Fallida a BonceCP.");
-                    }
-                }
-
-                if (strOp.equalsIgnoreCase("hikari")) {
-                    try {
-                        connectionInterface = new Hikari();
-                        connection = connectionInterface.newConnection();
-                        strJson = strJson(200, "Conexion Realizada a Hikari.");
-                    } catch (Exception e) {
-                        strJson = strJson(500, "Conexion Fallida a Hikari.");
-                    }
-                }
-
-                if (strOp.equalsIgnoreCase("c3p0")) {
-                    try {
-                        connectionInterface = new C3p0();
-                        connection = connectionInterface.newConnection();
-                        strJson = strJson(200, "Conexion Realizada a c3p0.");
-                    } catch (Exception e) {
-                        strJson = strJson(500, "Conexion Fallida a c3p0.");
-                    }
-                }
-
-                if (strOp.equalsIgnoreCase("login")) {
-                    String strUser = request.getParameter("user");
-                    String strPass = request.getParameter("passw");
-                    if (strUser != null && strPass != null) {
-                        if (strUser.equals("kevin") && strPass.equals("kevin")) {
-                            oSession.setAttribute("sesionvar", strUser);
-                            response.setStatus(200);
-                            strJson = strJson(200, "You are logged in.");
-                        } else {
-                            response.setStatus(401);
-                            strJson = strJson(401, "Authentication error");
-                        }
-                    } else {
-                        strJson = strJson(401, "User or pass not specified.");
-                    }
-                }
-                if (strOp.equalsIgnoreCase("logout")) {
-                    oSession.invalidate();
-                    response.setStatus(200);
-                    strJson = strJson(200, "Session is closed.");
-                }
-                if (strOp.equalsIgnoreCase("check")) {
-                    String strUserName = (String) oSession.getAttribute("sesionvar");
-                    if (strUserName == null) {
-                        response.setStatus(401);
-                        strJson = strJson(401, "You are NOT logged in.");
-                    } else {
-                        response.setStatus(200);
-                        strJson = strJson(200, "You are logged in !!.");
-                    }
-                }
-
-                if (strOp.equalsIgnoreCase("secret")) {
-                    String strUserName = (String) oSession.getAttribute("sesionvar");
-                    if (strUserName == null) {
-                        response.setStatus(401);
-                        strJson = strJson(401, "Error. You are not access.");
-                    } else {
-                        response.setStatus(200);
-                        strJson = strJson(200, "El nº secreto es 788945");
-                    }
-                }
-
+            }
+//            if (strOp.equalsIgnoreCase("bonecp") || strOp.equalsIgnoreCase("hikari") || strOp.equalsIgnoreCase("c3p0")
+//                    || strOp.equalsIgnoreCase("login") || strOp.equalsIgnoreCase("logout") || strOp.equalsIgnoreCase("secret") || strOp.equalsIgnoreCase("DBCP")) {
+            try {
+                Class.forName("com.mysql.jdbc.Driver");
+            } catch (Exception ex) {
+                strJson = strJson(500, "Driver not found.");
             }
 
+            Connection oConnection = null;
+            ConnectionInterface oConnectionPool = null;
+
+            if (strOp.equalsIgnoreCase("BoneCP")) {
+                try {
+                    oConnectionPool = ConnectionFactory.getConnection(ConnectionConstants.connectionPoolBoneCp);
+                    oConnection = oConnectionPool.newConnection();
+                    strJson = strJson(200, "Conexion Realizada a BoneCP.");
+                    oConnectionPool.disposeConnection();
+                } catch (Exception ex) {
+                    strJson = "{\"status\":500,\"msg\":\"Bad BoneCp Connection: " + EncodingHelper.escapeQuotes(ex.getMessage());
+                }
+            }
+
+            if (strOp.equalsIgnoreCase("Hikari")) {
+                try {
+                    oConnectionPool = ConnectionFactory.getConnection(ConnectionConstants.connectionPoolHikari);
+                    oConnection = oConnectionPool.newConnection();
+                    strJson = strJson(200, "Conexion Realizada a Hikari.");
+                    oConnectionPool.disposeConnection();
+                } catch (Exception ex) {
+                    strJson = "{\"status\":500,\"msg\":\"Bad Hikari Connection: " + EncodingHelper.escapeQuotes(ex.getMessage());
+                }
+            }
+            if (strOp.equalsIgnoreCase("C3p0")) {
+                try {
+                    oConnectionPool = new C3p0ConnectionSpecificImplementation();
+                    oConnection = oConnectionPool.newConnection();
+                    strJson = strJson(200, "Conexion Realizada a c3p0.");
+                    oConnectionPool.disposeConnection();
+                } catch (Exception ex) {
+                    strJson = "{\"status\":500,\"msg\":\"Bad C3p0 Connection: " + EncodingHelper.escapeQuotes(ex.getMessage());
+                }
+            }
+            
+            if (strOp.equalsIgnoreCase("DBCP")) {
+                try {
+                    oConnectionPool = ConnectionFactory.getConnection(ConnectionConstants.connectionPoolDBCP);
+                    oConnection = oConnectionPool.newConnection();
+                    strJson = strJson(200, "Conexion Realizada a DBCP.");
+                    oConnectionPool.disposeConnection();
+                } catch (Exception ex) {
+                    strJson = "{\"status\":500,\"msg\":\"Bad DBCP Connection: " + EncodingHelper.escapeQuotes(ex.getMessage());
+                }
+            }
+
+            if (strOp.equalsIgnoreCase("login")) {
+                String strUser = request.getParameter("user");
+                String strPass = request.getParameter("passw");
+                if (strUser != null && strPass != null) {
+                    if (strUser.equals("kevin") && strPass.equals("kevin")) {
+                        oSession.setAttribute("sesionvar", strUser);
+                        response.setStatus(200);
+                        strJson = strJson(200, "You are logged in.");
+                    } else {
+                        response.setStatus(401);
+                        strJson = strJson(401, "Authentication error");
+                    }
+                } else {
+                    strJson = strJson(401, "User or pass not specified.");
+                }
+            }
+            if (strOp.equalsIgnoreCase("logout")) {
+                oSession.invalidate();
+                response.setStatus(200);
+                strJson = strJson(200, "Session is closed.");
+            }
+            if (strOp.equalsIgnoreCase("check")) {
+                String strUserName = (String) oSession.getAttribute("sesionvar");
+                if (strUserName == null) {
+                    response.setStatus(401);
+                    strJson = strJson(401, "You are NOT logged in.");
+                } else {
+                    response.setStatus(200);
+                    strJson = strJson(200, "You are logged in !!.");
+                }
+            }
+
+            if (strOp.equalsIgnoreCase("secret")) {
+                String strUserName = (String) oSession.getAttribute("sesionvar");
+                if (strUserName == null) {
+                    response.setStatus(401);
+                    strJson = strJson(401, "Error. You are not access.");
+                } else {
+                    response.setStatus(200);
+                    strJson = strJson(200, "El nº secreto es 788945");
+                }
+            }
+
+//            } else {
+//                response.setStatus(500);
+//                strJson = strJson(500, "Escribe una operacion válida.");
+//            }
         } else {
             response.setStatus(500);
             strJson = strJson(500, "No ha solicitado ninguna operacion.");
@@ -140,8 +161,7 @@ public class json extends HttpServlet {
     }
 
     public String strJson(int status, String msg) {
-        String strJsonM = "{\"status\":" + status + ",\"msg\":\"" + msg + "\"}";
-        return strJsonM;
+        return "{\"status\":" + status + ",\"msg\":\"" + msg + "\"}";
     }
 
 // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
