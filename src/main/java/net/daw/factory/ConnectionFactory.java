@@ -11,6 +11,7 @@ import net.daw.connection.specificImplementation.C3p0ConnectionSpecificImplement
 import net.daw.connection.specificImplementation.DBCPConnectionSpecificImplementation;
 import net.daw.connection.specificImplementation.HikariConnectionSpecificImplementation;
 import net.daw.constant.ConnectionConstants;
+import net.daw.constant.ConnectionConstants.EnumConstans;
 
 /**
  *
@@ -18,16 +19,16 @@ import net.daw.constant.ConnectionConstants;
  */
 public class ConnectionFactory {
 
-    public static ConnectionInterface getConnection(ConnectionConstants.EnumConstans enumConnection) {
+    public static ConnectionInterface getConnection(EnumConstans enumConnection) {
         ConnectionInterface oConnectionInterface = null;
         switch (enumConnection) {
-            case Hikari:
+            case HIKARI:
                 oConnectionInterface = new HikariConnectionSpecificImplementation();
                 break;
-            case C3p0:
+            case C3P0:
                 oConnectionInterface = new C3p0ConnectionSpecificImplementation();
                 break;                      
-            case BoneCp:
+            case BONECP:
                 oConnectionInterface = new BoneCpConnectionSpecificImplementation();
                 break;                              
             case DBCP:

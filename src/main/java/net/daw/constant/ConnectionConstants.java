@@ -12,16 +12,20 @@ package net.daw.constant;
 public class ConnectionConstants {
 
     public static enum EnumConstans {
-        Hikari,
-        BoneCp,
-        C3p0,
-        DBCP
+        HIKARI,
+        BONECP,
+        C3P0,
+        DBCP,
+        LOGIN,
+        LOGOUT,
+        SECRET,
+        CHECK;
     };
 
-    public static final EnumConstans connectionPoolHikari = EnumConstans.Hikari;
-    public static final EnumConstans connectionPoolBoneCp = EnumConstans.BoneCp;
-    public static final EnumConstans connectionPoolC3p0 = EnumConstans.C3p0;
-    public static final EnumConstans connectionPoolDBCP = EnumConstans.DBCP;
+//    public static final EnumConstans connectionPoolHikari = EnumConstans.HIKARI;
+//    public static final EnumConstans connectionPoolBoneCp = EnumConstans.BONECP;
+//    public static final EnumConstans connectionPoolC3p0 = EnumConstans.C3P0;
+//    public static final EnumConstans connectionPoolDBCP = EnumConstans.DBCP;
 
 //    public static final String connectionName = "hikari";
     public static final String databaseName = "trolleyes";

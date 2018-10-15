@@ -76,7 +76,7 @@
                     function nombre(str) {
                         return /^[a-zA-Z]*$/.test(str);
                     }
-                                                           
+
                     var user, passw;
                     $("#user").keyup(function () {
                         user = $("#user").val();
@@ -123,44 +123,46 @@
 
 
                     $("#crear").click(function () {
-                        var op = "login";
-                        var url = "/trolleyes/json?op=" + op + "&user=" + user + "&passw=" + passw;
+                        peticion("login");
+                    });
+                    $("#logout").click(function () {
+                        peticion("logout");
+                    });
+                    $("#check").click(function () {
+                        peticion("check");
+                    });
+                    $("#secret").click(function () {
+                        peticion("secret");
+                    });
+
+                    function peticion(op) {
+                        if (op === "login") {
+                            var url = "/trolleyes/json?op=" + op + "&user=" + user + "&passw=" + passw;
+                        } else {
+                            var url = "/trolleyes/json?op=" + op;
+                        }
+                                                
                         $.ajax({
                             url: url,
                             cache: false,
                             method: "GET",
                             dataType: "json",
                             success: function (data) {
+                                if(op === "login" ) {
                                 $("#formulario").hide();
                                 $("#logout").css("visibility", "visible");
                                 $("#check").css("visibility", "visible");
                                 $("#secret").css("visibility", "visible");
                                 $("#alerta").attr("class", "alert alert-success");
                                 $("#alerta").empty().append("<h4 style='text-align: center'>Correcto</h4><h5 class=\"alert alert-success\">" + data.status + ": " + data.msg + "</h5>");
-                            },
-                            error: function (error) {
-                                $("#alerta").attr("class", "alert alert-danger");
-                                $("#alerta").empty().append("<h4 style='text-align: center'>ERROR:</h4><h5 class=\"alert alert-danger\">" + error.status + ": " + error.responseJSON.msg + "</h5>");
                             }
-                        });
-                    });
-
-
-                    $("#logout").click(function () {
-                        var op = "logout";
-                        var url = "/trolleyes/json?op=" + op;
-                        $.ajax({
-                            url: url,
-                            cache: false,
-                            method: "GET",
-                            dataType: "json",
-                            success: function (data) {
+                            if( op === "logout" ) {
                                 $("#formulario").show();
                                 $("#logout").css("visibility", "hidden");
                                 $("#check").css("visibility", "hidden");
                                 $("#secret").css("visibility", "hidden");
                                 $("#user").val("");
-                                $("#passw").val("");                                
+                                $("#passw").val("");
                                 $("#user").css("border-color", "");
                                 $("#passw").css("border-color", "");
                                 $("#alerta").attr("class", "alert alert-success");
@@ -169,56 +171,119 @@
                                 $("#mensajeA").empty();
                                 $("#mensajeB").empty();
                                 $("#alerta").empty().append("<h4 style='text-align: center'>Correcto</h4><h5 class=\"alert alert-success\">" + data.status + ": " + data.msg + "</h5>");
-                            },
-                            error: function (error) {
-                                $("#alerta").attr("class", "alert alert-danger");
-                                $("#alerta").empty().append("<h4 style='text-align: center'>ERROR:</h4><h5 class=\"alert alert-danger\">" + error.status + ": " + error.responseJSON.msg + "</h5>");
                             }
-                        });
-                    });
-
-
-
-                    $("#check").click(function () {
-                        var op = "check";
-                        var url = "/trolleyes/json?op=" + op;
-                        $.ajax({
-                            url: url,
-                            cache: false,
-                            method: "GET",
-                            dataType: "json",
-                            success: function (data) {                                
+                            if( op === "check") {
                                 $("#alerta").attr("class", "alert alert-success");
-                                $("#alerta").empty().append("<h4 style='text-align: center'>Correcto</h4><h5 class=\"alert alert-success\">" + data.status + ": " + data.msg + "</h5>");
-                            },
-                            error: function (error) {
-                                $("#alerta").attr("class", "alert alert-danger");
-                                $("#alerta").empty().append("<h4 style='text-align: center'>ERROR:</h4><h5 class=\"alert alert-danger\">" + error.status + ": " + error.responseJSON.msg + "</h5>");
+                                $("#alerta").empty().append("<h4 style='text-align: center'>Correcto</h4><h5 class=\"alert alert-success\">" + data.status + ": " + data.msg + "</h5>");                                
                             }
-                        });
-                    });
-                    
-                    
-                    $("#secret").click(function () {
-                        var op = "secret";
-                        var url = "/trolleyes/json?op=" + op;
-                        $.ajax({
-                            url: url,
-                            cache: false,
-                            method: "GET",
-                            dataType: "json",
-                            success: function (data) {                                
+                            
+                            if( op === "secret"){
                                 $("#alerta").attr("class", "alert alert-success");
                                 $("#alerta").empty().append("<h4 style='text-align: center'>Solo tú puedes verlo</h4><h5 class=\"alert alert-success\">" + data.status + ": " + data.msg + "</h5>");
-                            },
+                            }                                   
+                            },                            
                             error: function (error) {
                                 $("#alerta").attr("class", "alert alert-danger");
                                 $("#alerta").empty().append("<h4 style='text-align: center'>ERROR:</h4><h5 class=\"alert alert-danger\">" + error.status + ": " + error.responseJSON.msg + "</h5>");
-                            }
-                        });
+                            }                                                
                     });
-
-
+                    }
+//
+//                    $("#crear").click(function () {
+//                        var op = "login";
+//                        var url = "/trolleyes/json?op=" + op + "&user=" + user + "&passw=" + passw;
+//                        $.ajax({
+//                            url: url,
+//                            cache: false,
+//                            method: "GET",
+//                            dataType: "json",
+//                            success: function (data) {
+//                                $("#formulario").hide();
+//                                $("#logout").css("visibility", "visible");
+//                                $("#check").css("visibility", "visible");
+//                                $("#secret").css("visibility", "visible");
+//                                $("#alerta").attr("class", "alert alert-success");
+//                                $("#alerta").empty().append("<h4 style='text-align: center'>Correcto</h4><h5 class=\"alert alert-success\">" + data.status + ": " + data.msg + "</h5>");
+//                            },
+//                            error: function (error) {
+//                                $("#alerta").attr("class", "alert alert-danger");
+//                                $("#alerta").empty().append("<h4 style='text-align: center'>ERROR:</h4><h5 class=\"alert alert-danger\">" + error.status + ": " + error.responseJSON.msg + "</h5>");
+//                            }
+//                        });
+//                    });
+//
+//
+//                    $("#logout").click(function () {
+//                        var op = "logout";
+//                        var url = "/trolleyes/json?op=" + op;
+//                        $.ajax({
+//                            url: url,
+//                            cache: false,
+//                            method: "GET",
+//                            dataType: "json",
+//                            success: function (data) {
+//                                $("#formulario").show();
+//                                $("#logout").css("visibility", "hidden");
+//                                $("#check").css("visibility", "hidden");
+//                                $("#secret").css("visibility", "hidden");
+//                                $("#user").val("");
+//                                $("#passw").val("");
+//                                $("#user").css("border-color", "");
+//                                $("#passw").css("border-color", "");
+//                                $("#alerta").attr("class", "alert alert-success");
+//                                $("#mensajeA").attr("class", "");
+//                                $("#mensajeB").attr("class", "");
+//                                $("#mensajeA").empty();
+//                                $("#mensajeB").empty();
+//                                $("#alerta").empty().append("<h4 style='text-align: center'>Correcto</h4><h5 class=\"alert alert-success\">" + data.status + ": " + data.msg + "</h5>");
+//                            },
+//                            error: function (error) {
+//                                $("#alerta").attr("class", "alert alert-danger");
+//                                $("#alerta").empty().append("<h4 style='text-align: center'>ERROR:</h4><h5 class=\"alert alert-danger\">" + error.status + ": " + error.responseJSON.msg + "</h5>");
+//                            }
+//                        });
+//                    });
+//
+//
+//
+//                    $("#check").click(function () {
+//                        var op = "check";
+//                        var url = "/trolleyes/json?op=" + op;
+//                        $.ajax({
+//                            url: url,
+//                            cache: false,
+//                            method: "GET",
+//                            dataType: "json",
+//                            success: function (data) {
+//                                $("#alerta").attr("class", "alert alert-success");
+//                                $("#alerta").empty().append("<h4 style='text-align: center'>Correcto</h4><h5 class=\"alert alert-success\">" + data.status + ": " + data.msg + "</h5>");
+//                            },
+//                            error: function (error) {
+//                                $("#alerta").attr("class", "alert alert-danger");
+//                                $("#alerta").empty().append("<h4 style='text-align: center'>ERROR:</h4><h5 class=\"alert alert-danger\">" + error.status + ": " + error.responseJSON.msg + "</h5>");
+//                            }
+//                        });
+//                    });
+//
+//
+//                    $("#secret").click(function () {
+//                        var op = "secret";
+//                        var url = "/trolleyes/json?op=" + op;
+//                        $.ajax({
+//                            url: url,
+//                            cache: false,
+//                            method: "GET",
+//                            dataType: "json",
+//                            success: function (data) {
+//                                $("#alerta").attr("class", "alert alert-success");
+//                                $("#alerta").empty().append("<h4 style='text-align: center'>Solo tú puedes verlo</h4><h5 class=\"alert alert-success\">" + data.status + ": " + data.msg + "</h5>");
+//                            },
+//                            error: function (error) {
+//                                $("#alerta").attr("class", "alert alert-danger");
+//                                $("#alerta").empty().append("<h4 style='text-align: center'>ERROR:</h4><h5 class=\"alert alert-danger\">" + error.status + ": " + error.responseJSON.msg + "</h5>");
+//                            }
+//                        });
+//                    });
 
 
 

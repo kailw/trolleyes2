@@ -18,7 +18,7 @@ import net.daw.constant.ConnectionConstants;
  */
 public class C3p0ConnectionSpecificImplementation implements ConnectionInterface {
 
-    private Connection oConnection = null;
+    private Connection oConnection;
     private ComboPooledDataSource oConnectionPool = null;
 
     @Override
@@ -38,13 +38,13 @@ public class C3p0ConnectionSpecificImplementation implements ConnectionInterface
 
         try {
             //ComboPooledDataSource dataSource = oConnectionPool;
-            oConnection =  oConnectionPool.getConnection();  
-            return oConnection;
+            oConnection =  oConnectionPool.getConnection();              
 
         } catch (SQLException ex) {
             String msgError = this.getClass().getName() + ":" + (ex.getStackTrace()[1]).getMethodName();
             throw new Exception(msgError, ex);
         }
+        return oConnection;
         
     }
 
